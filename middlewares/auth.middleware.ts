@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { validateToken } from "../services/jwt.service";
-import { User } from "../model/User.model";
+import UserType from "../types/UserType";
 
 export const authorize = (allowedRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -13,9 +13,9 @@ export const authorize = (allowedRoles: string[]) => async (req: Request, res: R
       jwt = jwt.slice('bearer'.length).trim();
     }
 
-    const decodedToken: User = await validateToken(jwt);
+    const decodedToken: UserType = await validateToken(jwt);
     const hasAccessToEndpoint = allowedRoles.some((at: string) =>
-      decodedToken.role.some((uat: string) => uat == at)
+      at == decodedToken.role
     )
 
     if (!hasAccessToEndpoint) {
@@ -24,6 +24,6 @@ export const authorize = (allowedRoles: string[]) => async (req: Request, res: R
 
     next();
   } catch (err) {
-
+    console.log(err);
   }
 }
